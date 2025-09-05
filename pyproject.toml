@@ -1,0 +1,18 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "file-organizer"
+version = "1.0.0"
+description = "Cross-platform File Organizer App with PyQt5 GUI"
+authors = [{ name = "Harsh Kesharwani", email = "harsh.kesharwani037@gmail.com" }]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["PyQt5>=5.15", "watchdog>=3.0.0", "appdirs>=1.4.4"]
+
+[project.scripts]
+file-organizer-v1 = "file_organizer.v1.main:main"
+file-organizer-v2 = "file_organizer.v2.main:main"

@@ -1,0 +1,7 @@
+# requirements.txt
+
+PyQt5>=5.15.0
+watchdog>=2.1.0
+appdirs>=1.4.4
+pyinstaller>=5.1
+pytest>=6.2.0

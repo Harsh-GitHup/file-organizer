@@ -1,0 +1,96 @@
+name: File Organizer Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"   # Run workflow only when version tags are pushed (e.g., v1.0.0)
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run tests
+        run: pytest -v
+
+  build:
+    name: Build & Package
+    needs: test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build executables (v1 & v2)
+        run: |
+          pyinstaller --noconsole --onefile file_organizer/v1/main.py -n file-organizer-v1
+          pyinstaller --noconsole --onefile file_organizer/v2/main.py -n file-organizer-v2
+
+      - name: Package artifacts
+        run: |
+          mkdir artifacts
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            powershell Compress-Archive -Path dist/file-organizer-v1.exe -DestinationPath artifacts/file-organizer-v1-${{ runner.os }}.zip
+            powershell Compress-Archive -Path dist/file-organizer-v2.exe -DestinationPath artifacts/file-organizer-v2-${{ runner.os }}.zip
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            tar -czf artifacts/file-organizer-v1-${{ runner.os }}.tar.gz -C dist file-organizer-v1
+            tar -czf artifacts/file-organizer-v2-${{ runner.os }}.tar.gz -C dist file-organizer-v2
+          else
+            tar -czf artifacts/file-organizer-v1-${{ runner.os }}.tar.gz -C dist file-organizer-v1
+            tar -czf artifacts/file-organizer-v2-${{ runner.os }}.tar.gz -C dist file-organizer-v2
+          fi
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: file-organizer-${{ runner.os }}
+          path: artifacts/*
+
+  release:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release_artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./release_artifacts/**/* 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
