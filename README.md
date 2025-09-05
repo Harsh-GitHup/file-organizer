@@ -113,6 +113,18 @@ pytest test/
 
 ---
 
+## ⚡ Install as package for developers
+
+To use this app as python package in your project run:
+
+```bash
+pip install .
+file-organizer-v1
+file-organizer-v2
+```
+
+---
+
 ## 🔮 Roadmap (optional enhancements you can request)
 
 - 🖊 Structured Config Editor (GUI with rows, pickers, per-category destinations)
