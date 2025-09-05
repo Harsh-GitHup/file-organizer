@@ -3,7 +3,7 @@ name: File Organizer Release
 on:
   push:
     tags:
-      - "v*.*.*"   # Run workflow only when version tags are pushed (e.g., v1.0.0)
+      - "v*.*.*" # Run workflow only when version tags are pushed (e.g., v1.0.0)
 
 jobs:
   test:
@@ -36,7 +36,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            name: linux
+          - os: windows-latest
+            name: windows
+          - os: macos-latest
+            name: macos
 
     steps:
       - name: Checkout code
@@ -58,25 +64,24 @@ jobs:
           pyinstaller --noconsole --onefile file_organizer/v1/main.py -n file-organizer-v1
           pyinstaller --noconsole --onefile file_organizer/v2/main.py -n file-organizer-v2
 
-      - name: Package artifacts
+      - name: Package bundle
         run: |
-          mkdir artifacts
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            powershell Compress-Archive -Path dist/file-organizer-v1.exe -DestinationPath artifacts/file-organizer-v1-${{ runner.os }}.zip
-            powershell Compress-Archive -Path dist/file-organizer-v2.exe -DestinationPath artifacts/file-organizer-v2-${{ runner.os }}.zip
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            tar -czf artifacts/file-organizer-v1-${{ runner.os }}.tar.gz -C dist file-organizer-v1
-            tar -czf artifacts/file-organizer-v2-${{ runner.os }}.tar.gz -C dist file-organizer-v2
+          mkdir bundle
+          cp README.md bundle/ || true
+          cp organizer_config.json bundle/ || true
+          cp dist/* bundle/
+
+          if [ "${{ matrix.name }}" = "windows" ]; then
+            powershell Compress-Archive -Path bundle/* -DestinationPath file-organizer-${{ matrix.name }}.zip
           else
-            tar -czf artifacts/file-organizer-v1-${{ runner.os }}.tar.gz -C dist file-organizer-v1
-            tar -czf artifacts/file-organizer-v2-${{ runner.os }}.tar.gz -C dist file-organizer-v2
+            zip -r file-organizer-${{ matrix.name }}.zip bundle/
           fi
 
-      - name: Upload Release Artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: file-organizer-${{ runner.os }}
-          path: artifacts/*
+          name: file-organizer-${{ matrix.name }}
+          path: file-organizer-${{ matrix.name }}.zip
 
   release:
     name: Publish Release
@@ -91,6 +96,6 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ./release_artifacts/**/* 
+          files: ./release_artifacts/**/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
