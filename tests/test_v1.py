@@ -8,7 +8,7 @@ import file_organizer
 v1 = file_organizer.load_v1()
 organizer = importlib.import_module("file_organizer.v1.organizer")
 
-CONFIG_PATH = Path(__file__).resolve().parents[1] / "organizer_config.json"
+CONFIG_PATH = Path(__file__).resolve().parent.parent / "organizer_config.json"
 
 
 def load_config():
