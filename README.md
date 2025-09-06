@@ -7,7 +7,7 @@ Organize your downloads, documents, media, code, and installers into structured 
 
 ---
 
-## ✨ Features
+## ✨ Features (All in only version 2, few in version 1)
 
 - 🚀 **Drag & Drop** folders, or use **Browse**
 - 👁 **Preview planned moves** (file → category → destination)
