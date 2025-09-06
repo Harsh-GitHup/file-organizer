@@ -19,16 +19,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest
+
+      - name: Install project package
+        run: |
+          pip install -e .   # installs file_organizer package in editable mode
 
       - name: Run tests
-        run: pytest tests/
+        run: |
+          pytest tests/
 
   build:
     name: Build & Package
@@ -51,7 +55,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
@@ -67,12 +71,12 @@ jobs:
       - name: Package bundle
         run: |
           mkdir bundle
-          cp README.md bundle/ || true
-          cp organizer_config.json bundle/ || true
-          cp dist/* bundle/
+          cp README.md bundle/ || echo "README.md not found"
+          cp organizer_config.json bundle/ || echo "config not found"
+          cp dist/* bundle/ || echo "dist empty"
 
           if [ "${{ matrix.name }}" = "windows" ]; then
-            powershell Compress-Archive -Path bundle/* -DestinationPath file-organizer-${{ matrix.name }}.zip
+            powershell -Command "Compress-Archive -Path bundle/* -DestinationPath file-organizer-${{ matrix.name }}.zip"
           else
             zip -r file-organizer-${{ matrix.name }}.zip bundle/
           fi
