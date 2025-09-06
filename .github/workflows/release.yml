@@ -30,6 +30,9 @@ jobs:
         run: |
           pip install -e .   # installs file_organizer package in editable mode
 
+      - name: Copy config for tests
+        run: cp organizer_config.json file_organizer/
+
       - name: Run tests
         run: |
           pytest tests/
