@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from typing import Dict, List, Tuple
 from appdirs import user_data_dir # type: ignore
 APP_NAME = "FileOrganizer"
-APP_AUTHOR = "Harsh"
+APP_AUTHOR = "Harsh Kesharwani"
 
 DATA_DIR = Path(user_data_dir(APP_NAME, APP_AUTHOR))
 DATA_DIR.mkdir(parents=True, exist_ok=True)
