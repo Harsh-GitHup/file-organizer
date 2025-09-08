@@ -89,3 +89,7 @@ organizer_config.json
 # GitHub Actions artifacts
 artifacts/
 release_artifacts/
+
+# Specific to file_organizer
+file_organizer/v3
+release*.yml
